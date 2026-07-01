@@ -1,0 +1,1808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tech Spec Scout Pro</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   THEME SYSTEM — 6 selectable palettes via data-theme on <body>
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --radius: 13px;
+  --radius-lg: 20px;
+  --sidebar-w: 238px;
+  --font-serif: Georgia, 'Palatino Linotype', serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Courier New', monospace;
+  --ease: .19s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Ember (warm default) ── */
+[data-theme="ember"] {
+  --bg0:#1a1714; --bg1:#211e1a; --bg2:#2a2520; --bg3:#332e27;
+  --b0:#3d362d; --b1:#4e453a;
+  --A:#d9784a; --As:rgba(217,120,74,.17);
+  --B:#8aab6e; --Bs:rgba(138,171,110,.16);
+  --C:#e3b54a; --Cs:rgba(227,181,74,.15);
+  --t1:#f2ece4; --t2:#b5a99b; --t3:#7d7165;
+  --ok:#8aab6e; --err:#d9584a;
+  --g1:#d9784a; --g2:#e3b54a;
+}
+/* ── Ocean ── */
+[data-theme="ocean"] {
+  --bg0:#101820; --bg1:#141f28; --bg2:#192832; --bg3:#1f313c;
+  --b0:#2a3f4e; --b1:#38515f;
+  --A:#4aa3d4; --As:rgba(74,163,212,.17);
+  --B:#5fd0be; --Bs:rgba(95,208,190,.16);
+  --C:#f0c45a; --Cs:rgba(240,196,90,.15);
+  --t1:#e6f1f6; --t2:#96b2be; --t3:#5c7480;
+  --ok:#5fd0be; --err:#d96058;
+  --g1:#4aa3d4; --g2:#5fd0be;
+}
+/* ── Forest ── */
+[data-theme="forest"] {
+  --bg0:#141a13; --bg1:#192018; --bg2:#1f281e; --bg3:#263124;
+  --b0:#324030; --b1:#40513e;
+  --A:#6fad5c; --As:rgba(111,173,92,.17);
+  --B:#c9a850; --Bs:rgba(201,168,80,.16);
+  --C:#e3c45a; --Cs:rgba(227,196,90,.15);
+  --t1:#edf3e9; --t2:#a8b9a2; --t3:#6a7a64;
+  --ok:#6fad5c; --err:#c25848;
+  --g1:#6fad5c; --g2:#c9a850;
+}
+/* ── Berry ── */
+[data-theme="berry"] {
+  --bg0:#1a1318; --bg1:#20181e; --bg2:#281f26; --bg3:#31262e;
+  --b0:#3f2f3c; --b1:#503c4a;
+  --A:#d9638e; --As:rgba(217,99,142,.17);
+  --B:#b485e0; --Bs:rgba(180,133,224,.16);
+  --C:#e8a84e; --Cs:rgba(232,168,78,.15);
+  --t1:#f5edf2; --t2:#bca3b2; --t3:#7a6472;
+  --ok:#8fc98a; --err:#e05568;
+  --g1:#d9638e; --g2:#b485e0;
+}
+/* ── Sunrise (light) ── */
+[data-theme="sunrise"] {
+  --bg0:#faf5ef; --bg1:#ffffff; --bg2:#fdf8f2; --bg3:#f2ebe0;
+  --b0:#e6d9c6; --b1:#d4c2a8;
+  --A:#d4621e; --As:rgba(212,98,30,.13);
+  --B:#587e52; --Bs:rgba(88,126,82,.13);
+  --C:#c49018; --Cs:rgba(196,144,24,.13);
+  --t1:#26200e; --t2:#66583e; --t3:#9e8c6e;
+  --ok:#587e52; --err:#c03820;
+  --g1:#d4621e; --g2:#c49018;
+}
+/* ── Slate ── */
+[data-theme="slate"] {
+  --bg0:#14171c; --bg1:#1a1e24; --bg2:#20252c; --bg3:#272d36;
+  --b0:#343c47; --b1:#434d5a;
+  --A:#7990d1; --As:rgba(121,144,209,.17);
+  --B:#6cc1a6; --Bs:rgba(108,193,166,.16);
+  --C:#d1aa58; --Cs:rgba(209,170,88,.15);
+  --t1:#edf0f5; --t2:#a0a9b8; --t3:#636c7a;
+  --ok:#6cc1a6; --err:#d17070;
+  --g1:#7990d1; --g2:#6cc1a6;
+}
+
+/* ─── BASE ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--bg0);
+  color: var(--t1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  display: flex;
+  transition: background .25s, color .25s;
+  background-image:
+    radial-gradient(ellipse 900px 500px at 10% 0%, var(--As), transparent 55%),
+    radial-gradient(ellipse 700px 500px at 100% 100%, var(--Bs), transparent 55%);
+}
+button { cursor: pointer; border: none; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+a { color: var(--A); text-decoration: none; }
+a:hover { text-decoration: underline; }
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: var(--b1); border-radius: 99px; }
+::placeholder { color: var(--t3); }
+
+/* ─── SIDEBAR ─────────────────────────────────────────────────── */
+#sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--bg1);
+  border-right: 1px solid var(--b0);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--ease), background var(--ease);
+  z-index: 100;
+}
+.logo-wrap { padding: 22px 18px 16px; border-bottom: 1px solid var(--b0); }
+.logo-row { display: flex; align-items: center; gap: 11px; }
+.logo-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--g1), var(--g2));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+  box-shadow: 0 4px 16px var(--As);
+}
+.logo-name { font-family: var(--font-serif); font-size: 15px; font-weight: 700; line-height: 1.2; }
+.logo-name em { color: var(--A); font-style: italic; }
+.logo-tag { font-size: 10px; color: var(--t3); letter-spacing: .05em; margin-top: 2px; }
+
+.sidebar-scroll { flex: 1; overflow-y: auto; padding: 14px 10px; display: flex; flex-direction: column; gap: 3px; }
+.nav-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--t3); padding: 12px 10px 5px; }
+.nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px 13px; border-radius: var(--radius);
+  color: var(--t2); font-size: 13.5px; font-weight: 500;
+  cursor: pointer; border: 1px solid transparent;
+  transition: all var(--ease); user-select: none;
+}
+.nav-item:hover { background: var(--bg2); color: var(--t1); }
+.nav-item.active { background: var(--As); color: var(--A); border-color: rgba(var(--Ar),.3); }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto; background: var(--A); color: #fff;
+  font-size: 10px; font-weight: 700; border-radius: 99px;
+  padding: 1px 7px; min-width: 20px; text-align: center;
+}
+
+/* theme swatches */
+.theme-swatches { display: flex; gap: 7px; flex-wrap: wrap; padding: 4px 10px 10px; }
+.swatch {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid transparent; cursor: pointer;
+  transition: transform var(--ease);
+}
+.swatch:hover { transform: scale(1.15); }
+.swatch.on { border-color: var(--t1); box-shadow: 0 0 0 2px var(--bg1), 0 0 0 4px var(--A); }
+.swatch[data-t="ember"]   { background: linear-gradient(135deg,#d9784a,#e3b54a); }
+.swatch[data-t="ocean"]   { background: linear-gradient(135deg,#4aa3d4,#5fd0be); }
+.swatch[data-t="forest"]  { background: linear-gradient(135deg,#6fad5c,#c9a850); }
+.swatch[data-t="berry"]   { background: linear-gradient(135deg,#d9638e,#b485e0); }
+.swatch[data-t="sunrise"] { background: linear-gradient(135deg,#d4621e,#c49018); }
+.swatch[data-t="slate"]   { background: linear-gradient(135deg,#7990d1,#6cc1a6); }
+
+.sidebar-foot { padding: 14px 16px; border-top: 1px solid var(--b0); }
+.status-row { display: flex; align-items: center; gap: 9px; font-size: 12px; color: var(--t2); }
+.pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 6px var(--ok); animation: pdot 2.4s ease-in-out infinite; flex-shrink: 0; }
+@keyframes pdot { 0%,100%{opacity:1}50%{opacity:.35} }
+
+/* ─── TOPBAR ──────────────────────────────────────────────────── */
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+#topbar {
+  height: 58px; background: var(--bg1); border-bottom: 1px solid var(--b0);
+  display: flex; align-items: center; padding: 0 20px; gap: 12px; flex-shrink: 0;
+  transition: background var(--ease);
+}
+#menu-btn { display: none; background: none; color: var(--t2); font-size: 20px; padding: 4px 6px; border-radius: 8px; }
+#menu-btn:hover { color: var(--t1); background: var(--bg2); }
+.tb-title { font-family: var(--font-serif); font-size: 15.5px; font-weight: 700; }
+.tb-sub { font-size: 11.5px; color: var(--t3); }
+.tb-space { flex: 1; }
+.pill { display: flex; align-items: center; gap: 7px; background: var(--bg2); border: 1px solid var(--b0); border-radius: 99px; padding: 5px 12px; font-size: 12px; color: var(--t2); }
+.pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--B); }
+.user-chip { display: flex; align-items: center; gap: 8px; background: var(--bg2); border: 1px solid var(--b0); border-radius: 99px; padding: 4px 12px 4px 4px; font-size: 12px; cursor: pointer; transition: all var(--ease); }
+.user-chip:hover { border-color: var(--A); }
+.user-chip .uav { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--g1), var(--g2)); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+#clear-btn { background: none; border: 1px solid var(--b0); color: var(--t3); border-radius: 8px; padding: 5px 11px; font-size: 12px; transition: all var(--ease); }
+#clear-btn:hover { border-color: var(--err); color: var(--err); }
+
+/* ─── VIEW CONTAINER ──────────────────────────────────────────── */
+#vc { flex: 1; overflow: hidden; position: relative; }
+.view { position: absolute; inset: 0; overflow-y: auto; padding: 22px; display: none; flex-direction: column; gap: 18px; }
+.view.active { display: flex; }
+
+/* ─── SHARED COMPONENTS ───────────────────────────────────────── */
+.card { background: var(--bg2); border: 1px solid var(--b0); border-radius: var(--radius-lg); padding: 18px 20px; transition: background var(--ease); }
+.card-title { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--t2); margin-bottom: 13px; display: flex; align-items: center; gap: 8px; }
+.card-title .line { flex: 1; height: 1px; background: var(--b0); }
+
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 13px; }
+.stat-card { background: var(--bg2); border: 1px solid var(--b0); border-radius: var(--radius-lg); padding: 16px; position: relative; overflow: hidden; transition: border-color var(--ease); }
+.stat-card:hover { border-color: var(--b1); }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--sc1,var(--A)), var(--sc2,var(--B))); }
+.stat-lbl { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--t3); }
+.stat-val { font-family: var(--font-serif); font-size: 26px; font-weight: 700; margin: 4px 0 2px; }
+.stat-sub { font-size: 11px; color: var(--t3); }
+.stat-ico { position: absolute; right: 13px; top: 13px; font-size: 22px; opacity: .15; }
+
+.fgroup { display: flex; flex-direction: column; gap: 6px; margin-bottom: 13px; }
+.flabel { font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--t2); }
+.finput, .fselect, .ftextarea {
+  background: var(--bg3); border: 1px solid var(--b0); border-radius: var(--radius);
+  padding: 10px 13px; color: var(--t1); font-size: 13.5px; outline: none; width: 100%;
+  transition: border-color var(--ease);
+}
+.finput:focus, .fselect:focus, .ftextarea:focus { border-color: var(--A); box-shadow: 0 0 0 3px var(--As); }
+.fselect option { background: var(--bg2); }
+.ftextarea { resize: vertical; min-height: 80px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 18px; border-radius: var(--radius); font-size: 13.5px; font-weight: 600; border: 1px solid transparent; white-space: nowrap; transition: all var(--ease); }
+.btn-P { background: var(--A); color: #fff; box-shadow: 0 3px 14px var(--As); }
+.btn-P:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-S { background: var(--bg3); color: var(--t1); border-color: var(--b0); }
+.btn-S:hover { border-color: var(--A); color: var(--A); }
+.btn-G { background: var(--Bs); color: var(--B); border-color: var(--B); }
+.btn-G:hover { filter: brightness(1.15); }
+.btn-W { background: var(--Cs); color: var(--C); border-color: var(--C); }
+.btn-W:hover { filter: brightness(1.15); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-full { width: 100%; }
+.btn:disabled { opacity: .38; cursor: not-allowed; }
+
+.info-bar { display: flex; align-items: center; gap: 9px; padding: 10px 14px; background: var(--As); border: 1px solid var(--A); border-radius: var(--radius); font-size: 12.5px; color: var(--t2); margin-bottom: 4px; }
+.info-bar .ii { font-size: 15px; color: var(--A); flex-shrink: 0; }
+
+.section-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.section-title { font-family: var(--font-serif); font-size: 19px; font-weight: 700; }
+.search-inp { background: var(--bg3); border: 1px solid var(--b0); border-radius: var(--radius); padding: 9px 13px; color: var(--t1); font-size: 13px; outline: none; width: 210px; transition: all var(--ease); }
+.search-inp:focus { border-color: var(--A); width: 250px; }
+
+/* ─── HARDWARE VIEW ───────────────────────────────────────────── */
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; }
+.chip { background: var(--bg3); border: 1px solid var(--b0); color: var(--t2); border-radius: 99px; padding: 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all var(--ease); }
+.chip:hover { border-color: var(--b1); color: var(--t1); }
+.chip.on { background: var(--As); border-color: var(--A); color: var(--A); }
+
+.hw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 15px; }
+.hw-card { background: var(--bg2); border: 1px solid var(--b0); border-radius: var(--radius-lg); padding: 17px; display: flex; flex-direction: column; gap: 10px; transition: all var(--ease); }
+.hw-card:hover { border-color: var(--b1); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,.2); }
+.hw-head { display: flex; align-items: flex-start; gap: 11px; }
+.hw-ico { width: 43px; height: 43px; background: var(--bg3); border: 1px solid var(--b0); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 21px; flex-shrink: 0; }
+.hw-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.hw-brand { font-size: 11px; color: var(--t3); }
+.hw-price { font-family: var(--font-serif); font-size: 20px; font-weight: 700; color: var(--A); }
+.hw-price .fr { font-family: sans-serif; font-size: 11px; color: var(--t3); font-weight: 400; }
+.hw-specs { display: flex; flex-direction: column; gap: 5px; }
+.hw-spec { display: flex; justify-content: space-between; font-size: 12px; gap: 8px; }
+.hw-spec .k { color: var(--t3); flex-shrink: 0; }
+.hw-spec .v { color: var(--t1); font-weight: 600; text-align: right; }
+.hw-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag { background: var(--bg3); border: 1px solid var(--b0); border-radius: 99px; padding: 2px 9px; font-size: 11px; color: var(--t3); }
+.tag.disc { background: var(--Cs); border-color: var(--C); color: var(--C); }
+.tag.curr { background: var(--As); border-color: var(--A); color: var(--A); }
+.hw-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.mlink { background: var(--bg3); border: 1px solid var(--b0); color: var(--t2); border-radius: 8px; padding: 5px 10px; font-size: 11.5px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: all var(--ease); }
+.mlink:hover { text-decoration: none; }
+.mlink.amz:hover { border-color: #e3b54a; color: #e3b54a; }
+.mlink.ebay:hover { border-color: #4aa3d4; color: #4aa3d4; }
+.mlink.bb:hover { border-color: #5a9bd4; color: #5a9bd4; }
+.mlink.official:hover { border-color: var(--A); color: var(--A); }
+.empty-state { text-align: center; padding: 50px 20px; color: var(--t3); grid-column: 1/-1; }
+.empty-state .ei { font-size: 38px; margin-bottom: 12px; }
+.empty-state .et { font-size: 16px; font-weight: 600; color: var(--t2); margin-bottom: 6px; }
+
+/* ─── VPN VIEW ────────────────────────────────────────────────── */
+.vpn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.protocol-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 13px; }
+.proto-card { background: var(--bg3); border: 2px solid var(--b0); border-radius: var(--radius); padding: 14px; cursor: pointer; transition: all var(--ease); text-align: center; }
+.proto-card:hover { border-color: var(--b1); }
+.proto-card.on { border-color: var(--A); background: var(--As); }
+.proto-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.proto-desc { font-size: 11px; color: var(--t3); }
+.profile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 8px; margin-bottom: 13px; }
+.pf-badge { background: var(--bg3); border: 1px solid var(--b0); border-radius: 10px; padding: 10px; cursor: pointer; transition: all var(--ease); text-align: center; font-size: 12px; font-weight: 600; color: var(--t2); }
+.pf-badge:hover { border-color: var(--b1); color: var(--t1); }
+.pf-badge.on { border-color: var(--B); color: var(--B); background: var(--Bs); }
+.pf-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+.cfg-pre { background: var(--bg0); border: 1px solid var(--b0); border-radius: var(--radius); padding: 15px; font-family: var(--font-mono); font-size: 12px; line-height: 1.75; color: var(--B); min-height: 310px; max-height: 430px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+.cfg-pre .dim { color: var(--t3); }
+.cfg-actions { display: flex; gap: 9px; margin-top: 11px; flex-wrap: wrap; }
+.check-list { display: flex; flex-direction: column; gap: 9px; font-size: 12.5px; }
+.check-row { display: flex; gap: 8px; color: var(--t2); align-items: flex-start; }
+.check-row code { background: var(--bg3); padding: 1px 5px; border-radius: 5px; font-size: 11px; font-family: var(--font-mono); }
+
+/* ─── CHAT VIEW ───────────────────────────────────────────────── */
+#view-chat { padding: 0; gap: 0; }
+.chat-msgs { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 15px; }
+.cmsg { display: flex; gap: 10px; }
+.cmsg.user { flex-direction: row-reverse; }
+.av { width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; align-self: flex-end; }
+.av.ai { background: linear-gradient(135deg, var(--g1), var(--g2)); box-shadow: 0 3px 10px var(--As); }
+.av.user { background: var(--bg3); border: 1px solid var(--b0); }
+.bubble { background: var(--bg2); border: 1px solid var(--b0); border-radius: 17px; padding: 12px 16px; max-width: min(490px, 80%); font-size: 13.5px; line-height: 1.7; }
+.cmsg.user .bubble { background: var(--As); border-color: var(--A); border-bottom-right-radius: 4px; }
+.cmsg.ai .bubble { border-bottom-left-radius: 4px; }
+.msg-time { font-size: 10px; color: var(--t3); margin-top: 4px; }
+.cmsg.user .msg-time { text-align: right; }
+.cmsg.ai  .msg-time { text-align: left; }
+
+/* inline product card inside bubble */
+.pcrd { background: var(--bg3); border: 1px solid var(--b0); border-radius: 11px; padding: 12px; margin-top: 9px; font-size: 12.5px; }
+.pcrd-name { font-weight: 700; margin-bottom: 3px; }
+.pcrd-price { font-family: var(--font-serif); color: var(--A); font-weight: 700; font-size: 15px; }
+.pcrd-spec { color: var(--t2); margin-top: 3px; font-size: 12px; }
+.pcrd-links { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+
+/* typing dots */
+.tdots { display: flex; gap: 4px; align-items: center; padding: 14px 16px; }
+.td { width: 7px; height: 7px; border-radius: 50%; background: var(--A); animation: tbounce 1.1s ease-in-out infinite; }
+.td:nth-child(2){animation-delay:.15s} .td:nth-child(3){animation-delay:.3s}
+@keyframes tbounce { 0%,80%,100%{transform:scale(.6);opacity:.4} 40%{transform:scale(1);opacity:1} }
+
+/* suggestions */
+.sugs { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 22px 11px; flex-shrink: 0; }
+.sug { background: var(--bg3); border: 1px solid var(--b0); color: var(--t2); border-radius: 99px; padding: 6px 14px; font-size: 12px; cursor: pointer; transition: all var(--ease); }
+.sug:hover { border-color: var(--A); color: var(--A); }
+
+/* lock banner */
+.lock-bar { display: flex; align-items: center; gap: 9px; background: var(--Cs); border: 1px solid var(--C); border-radius: var(--radius); padding: 9px 13px; margin: 0 22px 10px; font-size: 12.5px; color: var(--t2); flex-shrink: 0; }
+
+/* chat bar */
+.chat-bar { padding: 13px 20px; border-top: 1px solid var(--b0); background: var(--bg1); display: flex; gap: 9px; align-items: flex-end; flex-shrink: 0; }
+.inp-wrap { flex: 1; background: var(--bg3); border: 1px solid var(--b0); border-radius: 15px; display: flex; align-items: center; padding: 0 4px 0 15px; transition: border-color var(--ease); min-height: 46px; }
+.inp-wrap:focus-within { border-color: var(--A); box-shadow: 0 0 0 3px var(--As); }
+#chat-inp { flex: 1; background: none; border: none; outline: none; color: var(--t1); font-size: 13.5px; padding: 10px 8px 10px 0; resize: none; max-height: 118px; overflow-y: auto; line-height: 1.5; }
+#mic-btn { width: 37px; height: 37px; background: none; color: var(--t3); border-radius: 9px; font-size: 17px; display: flex; align-items: center; justify-content: center; transition: all var(--ease); flex-shrink: 0; }
+#mic-btn:hover { color: var(--A); background: var(--As); }
+#mic-btn.rec { color: var(--err); animation: pring .8s ease-in-out infinite; }
+@keyframes pring { 0%,100%{box-shadow:0 0 0 0 var(--As)} 50%{box-shadow:0 0 0 8px transparent} }
+#send-btn { width: 46px; height: 46px; background: var(--A); color: #fff; border-radius: 13px; font-size: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 14px var(--As); transition: all var(--ease); }
+#send-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+/* ─── PRICING VIEW ────────────────────────────────────────────── */
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(225px, 1fr)); gap: 15px; }
+.p-card { background: var(--bg2); border: 1px solid var(--b0); border-radius: var(--radius-lg); padding: 22px; display: flex; flex-direction: column; gap: 13px; position: relative; transition: all var(--ease); }
+.p-card:hover { border-color: var(--b1); transform: translateY(-2px); }
+.p-card.pop { border-color: var(--A); box-shadow: 0 0 0 1px var(--A); }
+.pop-flag { position: absolute; top: -11px; left: 18px; background: var(--A); color: #fff; font-size: 10.5px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+.p-name { font-family: var(--font-serif); font-size: 17px; font-weight: 700; }
+.p-tag { font-size: 12px; color: var(--t3); }
+.p-amt { display: flex; align-items: baseline; gap: 4px; }
+.p-num { font-family: var(--font-serif); font-size: 33px; font-weight: 700; color: var(--A); }
+.p-per { font-size: 12px; color: var(--t3); }
+.p-feats { display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; flex: 1; }
+.p-feats div { display: flex; gap: 8px; color: var(--t2); align-items: flex-start; }
+.pck { color: var(--B); flex-shrink: 0; }
+.pno { color: var(--t3); flex-shrink: 0; opacity: .5; }
+.p-note { font-size: 10.5px; color: var(--t3); text-align: center; margin-top: 4px; }
+
+/* ─── SIGN-IN OVERLAY ────────────────────────────────────────── */
+#signin-ov { position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(6px); z-index: 5000; display: none; align-items: center; justify-content: center; padding: 20px; }
+#signin-ov.show { display: flex; }
+.si-card { background: var(--bg2); border: 1px solid var(--b0); border-radius: var(--radius-lg); padding: 34px 30px; max-width: 370px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+.si-ico { width: 58px; height: 58px; margin: 0 auto 16px; background: linear-gradient(135deg, var(--g1), var(--g2)); border-radius: 17px; display: flex; align-items: center; justify-content: center; font-size: 27px; box-shadow: 0 6px 20px var(--As); }
+.si-title { font-family: var(--font-serif); font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.si-sub { font-size: 12.5px; color: var(--t3); margin-bottom: 24px; line-height: 1.6; }
+.si-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 15px; border-radius: var(--radius); background: var(--bg3); border: 1px solid var(--b0); color: var(--t1); font-size: 13.5px; font-weight: 600; margin-bottom: 9px; transition: all var(--ease); }
+.si-btn:hover { border-color: var(--b1); transform: translateY(-1px); }
+.si-pi { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; font-weight: 900; }
+.si-skip { display: block; margin-top: 16px; font-size: 12px; color: var(--t3); cursor: pointer; }
+.si-skip:hover { color: var(--t2); }
+.si-note { font-size: 10px; color: var(--t3); margin-top: 14px; line-height: 1.6; }
+
+/* ─── TOAST ───────────────────────────────────────────────────── */
+#toast { position: fixed; bottom: 22px; right: 22px; background: var(--bg2); border: 1px solid var(--b0); border-radius: 11px; padding: 12px 18px; font-size: 13px; color: var(--t1); box-shadow: 0 8px 28px rgba(0,0,0,.28); display: flex; align-items: center; gap: 10px; transform: translateY(70px); opacity: 0; transition: all .24s cubic-bezier(.34,1.56,.64,1); z-index: 9999; pointer-events: none; max-width: 310px; }
+#toast.show { transform: translateY(0); opacity: 1; }
+
+#overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 99; backdrop-filter: blur(2px); }
+
+/* ─── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  #sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); }
+  #sidebar.open { transform: translateX(0); }
+  #overlay.show { display: block; }
+  #menu-btn { display: flex; }
+  .vpn-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .view { padding: 14px; }
+  .chat-msgs { padding: 14px; }
+  .chat-bar { padding: 10px 13px; }
+  .sugs { padding: 0 13px 9px; }
+  .lock-bar { margin: 0 13px 9px; }
+}
+</style>
+</head>
+<body data-theme="ember">
+
+<!-- SIGN-IN OVERLAY -->
+<div id="signin-ov">
+  <div class="si-card">
+    <div class="si-ico">🧭</div>
+    <div class="si-title">Welcome back</div>
+    <div class="si-sub">Sign in to save your chats, VPN configs, and plan across any device.</div>
+
+    <button class="si-btn" onclick="doSignIn('Google')">
+      <span class="si-pi" style="color:#e3b54a;">G</span> Continue with Google
+    </button>
+    <button class="si-btn" onclick="doSignIn('Apple')">
+      <span class="si-pi"></span> Continue with Apple
+    </button>
+    <button class="si-btn" onclick="doSignIn('Yahoo')">
+      <span class="si-pi" style="color:#b485e0;">Y!</span> Continue with Yahoo
+    </button>
+
+    <span class="si-skip" onclick="skipSignIn()">Continue as guest →</span>
+    <div class="si-note">Demo simulation — no real auth runs here. Real sign-in needs Firebase Auth + a hosted domain (see Plans page for the full setup guide).</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-row">
+      <div class="logo-icon">🧭</div>
+      <div>
+        <div class="logo-name">Tech Spec <em>Scout Pro</em></div>
+        <div class="logo-tag">Your IT sidekick · Always on</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-scroll">
+    <div class="nav-label">Workspace</div>
+    <div class="nav-item active" data-view="chat" onclick="gotoView('chat')">
+      <span class="nav-icon">💬</span> Chat with Sam
+      <span class="nav-badge" id="badge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" data-view="hardware" onclick="gotoView('hardware')">
+      <span class="nav-icon">🔍</span> Hardware Scout
+    </div>
+    <div class="nav-item" data-view="vpn" onclick="gotoView('vpn')">
+      <span class="nav-icon">🔐</span> VPN Configurator
+    </div>
+    <div class="nav-item" data-view="pricing" onclick="gotoView('pricing')">
+      <span class="nav-icon">💳</span> Plans & Pricing
+    </div>
+
+    <div class="nav-label">Theme</div>
+    <div class="theme-swatches" id="swatches"></div>
+
+    <div class="nav-label">Status</div>
+    <div class="nav-item" style="cursor:default;pointer-events:none;">
+      <span class="nav-icon">📡</span> AI Engine
+      <span style="margin-left:auto;font-size:10px;color:var(--ok);font-weight:700;">LIVE</span>
+    </div>
+    <div class="nav-item" style="cursor:default;pointer-events:none;">
+      <span class="nav-icon">🗄️</span> LocalStorage
+      <span style="margin-left:auto;font-size:10px;color:var(--ok);font-weight:700;">OK</span>
+    </div>
+  </div>
+
+  <div class="sidebar-foot">
+    <div class="status-row">
+      <div class="pulse"></div>
+      <div>
+        <div style="font-weight:600;font-size:12px;">All systems go</div>
+        <div style="font-size:10px;color:var(--t3);">v4.0 · Sam is ready</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- MAIN -->
+<div id="main">
+  <header id="topbar">
+    <button id="menu-btn" onclick="toggleSidebar()">☰</button>
+    <div>
+      <div class="tb-title" id="tb-title">Chat with Sam</div>
+      <div class="tb-sub" id="tb-sub">Your enterprise IT buddy — ask me anything</div>
+    </div>
+    <div class="tb-space"></div>
+    <div class="pill"><div class="dot"></div><span>Sam is online</span></div>
+    <div class="user-chip" id="user-chip" onclick="userChipClick()">
+      <span class="uav" id="uav">🙂</span>
+      <span id="ulabel">Guest</span>
+    </div>
+    <button id="clear-btn" onclick="confirmClear()">🗑 Clear data</button>
+  </header>
+
+  <div id="vc">
+
+    <!-- ══ CHAT ══ -->
+    <div class="view active" id="view-chat">
+      <div class="chat-msgs" id="chat-msgs"></div>
+      <div class="lock-bar" id="lock-bar" style="display:none;">
+        <span>🔒</span>
+        <span>Guest mode — sign in to keep your chat history across visits.</span>
+        <button class="btn btn-S btn-sm" style="margin-left:auto;" onclick="openSignIn()">Sign in</button>
+      </div>
+      <div class="sugs" id="sugs">
+        <div class="sug" onclick="doSug(this)">Best laptop under $1500?</div>
+        <div class="sug" onclick="doSug(this)">iPhone 15 Pro Max specs</div>
+        <div class="sug" onclick="doSug(this)">WireGuard or OpenVPN?</div>
+        <div class="sug" onclick="doSug(this)">Good office desktop?</div>
+        <div class="sug" onclick="doSug(this)">What phones are under $1000?</div>
+      </div>
+      <div class="chat-bar">
+        <div class="inp-wrap">
+          <textarea id="chat-inp" placeholder="Ask Sam anything — specs, budgets, networking, VPNs..." rows="1"></textarea>
+          <button id="mic-btn" onclick="toggleMic()" title="Speak to Sam">🎤</button>
+        </div>
+        <button id="send-btn" onclick="sendChat()">➤</button>
+      </div>
+    </div>
+
+    <!-- ══ HARDWARE ══ -->
+    <div class="view" id="view-hardware">
+      <div class="section-hdr">
+        <div class="section-title">🔍 Hardware Spec Scout</div>
+        <input class="search-inp" id="hw-search" placeholder="Search devices..." oninput="filterHW()" />
+      </div>
+      <div class="info-bar">
+        <span class="ii">🛒</span>
+        <span>Every device — current or discontinued — links to Amazon, eBay, and Best Buy so you can compare live prices instantly.</span>
+      </div>
+      <div class="stat-grid" id="hw-stats"></div>
+      <div class="filter-row" id="filter-row">
+        <div class="chip on" data-cat="All" onclick="setCategory(this)">All devices</div>
+        <div class="chip" data-cat="Laptop"   onclick="setCategory(this)">💻 Laptops</div>
+        <div class="chip" data-cat="Phone"    onclick="setCategory(this)">📱 Phones</div>
+        <div class="chip" data-cat="Desktop"  onclick="setCategory(this)">🖥️ Desktops</div>
+        <div class="chip" data-cat="Tablet"   onclick="setCategory(this)">📟 Tablets</div>
+        <div class="chip" data-cat="Hardware" onclick="setCategory(this)">⚙️ Networking</div>
+        <div class="chip" data-cat="TV"       onclick="setCategory(this)">📺 Displays</div>
+      </div>
+      <div class="hw-grid" id="hw-grid"></div>
+    </div>
+
+    <!-- ══ VPN ══ -->
+    <div class="view" id="view-vpn">
+      <div class="section-hdr"><div class="section-title">🔐 Instant VPN Configurator</div></div>
+      <div class="info-bar">
+        <span class="ii">ℹ️</span>
+        <span>Production-ready <strong>templates</strong> — replace all placeholder keys with your real credentials before deploying.</span>
+      </div>
+      <div class="vpn-grid">
+        <!-- LEFT -->
+        <div style="display:flex;flex-direction:column;gap:15px;">
+          <div class="card">
+            <div class="card-title">01 · Use-case profile <div class="line"></div></div>
+            <div class="profile-grid" id="profile-grid"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">02 · Connection target <div class="line"></div></div>
+            <div class="fgroup"><label class="flabel">Domain / Server IP</label><input class="finput" id="v-host" placeholder="vpn.company.com or 203.0.113.1" /></div>
+            <div class="fgroup"><label class="flabel">VPN Port</label><input class="finput" id="v-port" placeholder="51820 (WireGuard) · 1194 (OpenVPN)" /></div>
+            <div class="fgroup"><label class="flabel">Organization / Client name</label><input class="finput" id="v-org" placeholder="ACME Corp — Remote Worker" /></div>
+          </div>
+          <div class="card">
+            <div class="card-title">03 · Protocol &amp; cipher <div class="line"></div></div>
+            <div class="protocol-pick" id="proto-pick">
+              <div class="proto-card on" data-p="wireguard" onclick="setProto(this)">
+                <div class="proto-name">⚡ WireGuard</div>
+                <div class="proto-desc">Modern · fast · low-latency</div>
+              </div>
+              <div class="proto-card" data-p="openvpn" onclick="setProto(this)">
+                <div class="proto-name">🔒 OpenVPN</div>
+                <div class="proto-desc">Battle-tested · flexible</div>
+              </div>
+            </div>
+            <div class="fgroup"><label class="flabel">DNS Servers</label><input class="finput" id="v-dns" value="1.1.1.1, 1.0.0.1" /></div>
+            <div class="fgroup">
+              <label class="flabel">Cipher</label>
+              <select class="fselect" id="v-cipher">
+                <option value="AES-256-GCM">AES-256-GCM (recommended)</option>
+                <option value="AES-128-GCM">AES-128-GCM (faster)</option>
+                <option value="CHACHA20-POLY1305">ChaCha20-Poly1305 (mobile-optimized)</option>
+                <option value="AES-256-CBC">AES-256-CBC (legacy compatible)</option>
+              </select>
+            </div>
+            <button class="btn btn-P btn-full" onclick="genVPN()" style="margin-top:5px;">⚡ Generate Production Config</button>
+          </div>
+        </div>
+        <!-- RIGHT -->
+        <div style="display:flex;flex-direction:column;gap:15px;">
+          <div class="card" style="flex:1;">
+            <div class="card-title">Config preview <div class="line"></div>
+              <span id="cfg-fname" style="font-size:11px;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0;"></span>
+            </div>
+            <div class="cfg-pre" id="cfg-pre"><span class="dim"># Set options on the left, then tap
+# "Generate Production Config".
+#
+#   WireGuard → .conf
+#   OpenVPN   → .ovpn
+#
+# Config includes:
+#   - Key placeholders
+#   - Cipher + auth settings
+#   - DNS leak prevention
+#   - Tunnel routing rules</span></div>
+            <div class="cfg-actions">
+              <button class="btn btn-S btn-sm" id="copy-btn" onclick="copyCfg()" disabled>📋 Copy</button>
+              <button class="btn btn-G btn-sm" id="dl-btn" onclick="dlCfg()" disabled>⬇ Download</button>
+              <button class="btn btn-W btn-sm" onclick="clearCfg()">✕ Clear</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Security checklist <div class="line"></div></div>
+            <div class="check-list">
+              <div class="check-row"><span>✅</span> Replace every <code>YOUR_*_KEY_HERE</code> with a real key</div>
+              <div class="check-row"><span>✅</span> Generate fresh pairs: <code>wg genkey | tee priv | wg pubkey &gt; pub</code></div>
+              <div class="check-row"><span>✅</span> Open firewall port on server for selected protocol</div>
+              <div class="check-row"><span>✅</span> Test for DNS leaks at dnsleaktest.com post-connect</div>
+              <div class="check-row"><span>✅</span> Rotate keys every ~90 days</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PRICING ══ -->
+    <div class="view" id="view-pricing">
+      <div class="section-hdr"><div class="section-title">💳 Plans &amp; Pricing</div></div>
+      <div class="info-bar">
+        <span class="ii">🧪</span>
+        <span>Demo mode — selecting a plan unlocks features locally. Real billing needs Stripe + Firebase (see the setup guide below the cards).</span>
+      </div>
+      <div class="pricing-grid">
+        <div class="p-card" data-plan="free">
+          <div class="p-name">🌱 Free</div>
+          <div class="p-tag">Browse &amp; explore</div>
+          <div class="p-amt"><span class="p-num">$0</span><span class="p-per">/ month</span></div>
+          <div class="p-feats">
+            <div><span class="pck">✓</span> Full hardware catalog</div>
+            <div><span class="pck">✓</span> 5 chat messages per day</div>
+            <div><span class="pno">✕</span> VPN config generation</div>
+            <div><span class="pno">✕</span> Saved chat history</div>
+            <div><span class="pno">✕</span> Unlimited messaging</div>
+          </div>
+          <button class="btn btn-S btn-full" id="pb-free" onclick="setPlan('free')">Select Free</button>
+        </div>
+        <div class="p-card pop" data-plan="networking">
+          <div class="pop-flag">MOST POPULAR</div>
+          <div class="p-name">🔐 Networking Pro</div>
+          <div class="p-tag">Build real VPN configs</div>
+          <div class="p-amt"><span class="p-num">$12</span><span class="p-per">/ month</span></div>
+          <div class="p-feats">
+            <div><span class="pck">✓</span> Everything in Free</div>
+            <div><span class="pck">✓</span> Unlimited VPN config generation</div>
+            <div><span class="pck">✓</span> All 6 corporate profiles</div>
+            <div><span class="pck">✓</span> WireGuard + OpenVPN templates</div>
+            <div><span class="pck">✓</span> Saved configs across sessions</div>
+          </div>
+          <button class="btn btn-P btn-full" id="pb-networking" onclick="setPlan('networking')">Subscribe</button>
+        </div>
+        <div class="p-card" data-plan="chat">
+          <div class="p-name">💬 1-on-1 with Sam</div>
+          <div class="p-tag">Unlimited hardware chat</div>
+          <div class="p-amt"><span class="p-num">$9</span><span class="p-per">/ month</span></div>
+          <div class="p-feats">
+            <div><span class="pck">✓</span> Everything in Free</div>
+            <div><span class="pck">✓</span> Unlimited daily messages</div>
+            <div><span class="pck">✓</span> Full saved chat history</div>
+            <div><span class="pck">✓</span> Priority response speed</div>
+            <div><span class="pno">✕</span> VPN config generation</div>
+          </div>
+          <button class="btn btn-S btn-full" id="pb-chat" onclick="setPlan('chat')">Subscribe</button>
+        </div>
+        <div class="p-card" data-plan="bundle">
+          <div class="p-name">🚀 Everything Bundle</div>
+          <div class="p-tag">Networking + unlimited chat</div>
+          <div class="p-amt"><span class="p-num">$18</span><span class="p-per">/ month</span></div>
+          <div class="p-feats">
+            <div><span class="pck">✓</span> Unlimited VPN configs</div>
+            <div><span class="pck">✓</span> Unlimited chat with Sam</div>
+            <div><span class="pck">✓</span> Full history, all devices</div>
+            <div><span class="pck">✓</span> Priority speed</div>
+            <div><span class="pck">✓</span> Early access to new features</div>
+          </div>
+          <button class="btn btn-S btn-full" id="pb-bundle" onclick="setPlan('bundle')">Subscribe</button>
+        </div>
+      </div>
+      <div class="p-note" style="margin-top:6px;">Switch plans anytime. No real charges in demo mode.</div>
+
+      <!-- setup guide -->
+      <div class="card" style="margin-top:6px;">
+        <div class="card-title">🚀 Real sign-in + payments setup guide <div class="line"></div></div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:var(--t2);line-height:1.7;">
+          <div><strong style="color:var(--t1);">Step 1 — Netlify (free hosting)</strong><br>Drag your index.html to netlify.com → you get a real https:// URL in minutes. Custom domain ~$15/yr optional.</div>
+          <div><strong style="color:var(--t1);">Step 2 — Firebase Auth (free Google/Yahoo login)</strong><br>firebase.google.com → create project → Authentication → enable Google + Yahoo providers → paste the 10-line JS snippet I write for you into your HTML. Apple login needs an Apple Developer account ($99/yr).</div>
+          <div><strong style="color:var(--t1);">Step 3 — Stripe + Firebase Extension (real payments)</strong><br>stripe.com → create account → add your 4 products ($0/$9/$12/$18/mo) → Firebase console → Extensions → "Run Payments with Stripe" → install. 2.9% + 30¢ per transaction, no monthly fee.</div>
+          <div><strong style="color:var(--t1);">Step 4 — Upload your Pascal code here</strong><br>Attach .pas / .dpr / .dfm files in this chat. I'll translate your logic into the wired-up web version and hand you deploy-ready code to drag back to Netlify.</div>
+          <div style="color:var(--t3);font-size:12px;">Total minimum launch cost: $0 (skip Apple login + custom domain). Stripe fees only apply when you earn revenue.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /vc -->
+</div><!-- /main -->
+
+<div id="toast"><span id="t-ico">✅</span><span id="t-msg">Done!</span></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   TECH SPEC SCOUT PRO — app.js
+   Logic style mirrors the user's Pascal samples:
+     • Declare variables at top (let/const)
+     • Sequential Begin...End → sequential function blocks
+     • For i = 1 to N  →  for(let i=1;i<=N;i++)
+     • While condition  →  while(!exit) loops
+     • If/Then/Else     →  if/else chains
+     • Accumulator sum=0, sum=sum+val → same pattern in JS
+     • Writeln(output)  →  appendMessage() / render calls
+     • Readln(input)    →  input field value reads
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── VARIABLES (like Pascal Var section) ─────────────────────────
+   price, discountTotal, sum, tax, step, turn, atExit — your names,
+   now living in the app state object.
+   ──────────────────────────────────────────────────────────────── */
+let S = {
+  view:       'chat',      /* current view (like a mode flag)       */
+  hwCat:      'All',       /* category filter                        */
+  hwQ:        '',          /* search query                           */
+  proto:      'wireguard', /* VPN protocol selection                 */
+  profile:    'remote',    /* VPN profile                            */
+  cfgText:    '',          /* generated config (like "total" output) */
+  cfgFile:    '',          /* filename                                */
+  msgs:       [],          /* chat history array                     */
+  unread:     0,
+  theme:      'ember',
+  user:       null,        /* { provider, name } or null             */
+  plan:       'free',
+  msgCount:   0,           /* daily counter — like "sum" accumulator */
+  msgDate:    ''           /* date stamp for counter reset           */
+};
+
+/* ── LocalStorage helpers ────────────────────────────────────────
+   Pascal: Writeln saves, Readln loads — same idea here.
+   ──────────────────────────────────────────────────────────────── */
+const LS = {
+  save: (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch{} },
+  load: (k,d) => { try { const r=localStorage.getItem(k); return r!==null ? JSON.parse(r) : d; } catch{ return d; } }
+};
+
+function saveAll() {
+  /* Like: Writeln(price, discount, total, sum, tax ...) all at once */
+  LS.save('tssp4', {
+    msgs:     S.msgs,
+    cfgText:  S.cfgText,
+    cfgFile:  S.cfgFile,
+    proto:    S.proto,
+    profile:  S.profile,
+    view:     S.view,
+    theme:    S.theme,
+    user:     S.user,
+    plan:     S.plan,
+    msgCount: S.msgCount,
+    msgDate:  S.msgDate
+  });
+}
+function loadAll() {
+  /* Like: Readln(price, discount, total …) — reads them all back */
+  const d = LS.load('tssp4', {});
+  Object.assign(S, d);
+}
+
+/* ── MARKETPLACE LINK BUILDER ────────────────────────────────────
+   Your area-code program: amount := currency * 37
+   Same idea — take a name, produce a URL output.
+   ──────────────────────────────────────────────────────────────── */
+function mkt(name) {
+  /* Pascal equivalent:
+       Readln(productName);
+       amazonURL  := BASE_AMZ + productName;
+       ebayURL    := BASE_EBAY + productName;
+       bestbuyURL := BASE_BB + productName;
+       Writeln(amazonURL, ebayURL, bestbuyURL);
+  */
+  const q = encodeURIComponent(name);
+  return {
+    amz:  `https://www.amazon.com/s?k=${q}`,
+    ebay: `https://www.ebay.com/sch/i.html?_nkw=${q}`,
+    bb:   `https://www.bestbuy.com/site/searchpage.jsp?st=${q}`
+  };
+}
+
+/* ── HARDWARE CATALOG ────────────────────────────────────────────
+   Like your "Var price, discount, total" but for devices.
+   Specs sourced from each manufacturer's official product pages.
+   ──────────────────────────────────────────────────────────────── */
+const HW = [
+  /* ── LAPTOPS ── */
+  { id:1, cat:'Laptop', name:'MacBook Pro 16" (M3 Max)', brand:'Apple', ico:'💻', price:3499,
+    specs:{ Chip:'Apple M3 Max', RAM:'36GB unified (up to 128GB)', Storage:'1TB SSD (up to 8TB)', Display:'16.2" Liquid Retina XDR', Battery:'Up to 22 hrs', Weight:'2.16 kg' },
+    tags:['macOS','Thunderbolt 4','ProRes','Enterprise'], disc:false,
+    url:'https://www.apple.com/macbook-pro/specs/' },
+
+  { id:2, cat:'Laptop', name:'Dell XPS 15 9530', brand:'Dell', ico:'💻', price:1999,
+    specs:{ CPU:'Intel Core i7-13700H', RAM:'16GB DDR5 (up to 64GB)', Storage:'512GB NVMe (up to 4TB)', Display:'15.6" FHD+ or OLED 3.5K', GPU:'Arc / RTX 4050–4060', Weight:'1.86 kg' },
+    tags:['Windows 11 Pro','OLED option','Creator'], disc:false,
+    url:'https://www.dell.com/en-us/shop/dell-laptops/xps-15-laptop/spd/xps-15-9530-laptop' },
+
+  { id:3, cat:'Laptop', name:'ThinkPad X1 Carbon Gen 12', brand:'Lenovo', ico:'💻', price:1749,
+    specs:{ CPU:'Intel Core Ultra 7 165U', RAM:'16GB LPDDR5x (up to 32GB)', Storage:'512GB SSD (up to 2TB)', Display:'14" WUXGA or 2.8K OLED', Battery:'Up to ~15 hrs', Weight:'From ~1.12 kg' },
+    tags:['Windows 11 Pro','MIL-SPEC','Business','Ultralight'], disc:false,
+    url:'https://www.lenovo.com/us/en/p/laptops/thinkpad/thinkpadx1/thinkpad-x1-carbon-gen-12/21kc' },
+
+  { id:4, cat:'Laptop', name:'HP Elite Dragonfly G4', brand:'HP', ico:'💻', price:1649,
+    specs:{ CPU:'Intel Core i7-1365U', RAM:'16GB LPDDR5 (up to 32GB)', Storage:'512GB SSD (up to 2TB)', Display:'13.5" 3:2 IPS or Sure View', Battery:'Up to ~17 hrs', Weight:'From ~0.99 kg' },
+    tags:['Windows 11 Pro','Wolf Security','Business'], disc:false,
+    url:'https://www.hp.com/us-en/shop/pdp/hp-elite-dragonfly-g4-notebook-pc' },
+
+  { id:5, cat:'Laptop', name:'MacBook Air 15" (M3)', brand:'Apple', ico:'💻', price:1299,
+    specs:{ Chip:'Apple M3', RAM:'8GB unified (up to 24GB)', Storage:'256GB SSD (up to 2TB)', Display:'15.3" Liquid Retina', Battery:'Up to 18 hrs', Weight:'1.51 kg' },
+    tags:['macOS','Fanless','Portable'], disc:false,
+    url:'https://www.apple.com/macbook-air/specs/' },
+
+  { id:6, cat:'Laptop', name:'ASUS ROG Zephyrus G14 (2024)', brand:'ASUS', ico:'💻', price:1799,
+    specs:{ CPU:'AMD Ryzen 9 8945HS', RAM:'32GB LPDDR5x', Storage:'1TB PCIe 4.0', Display:'14" 2.8K OLED 120Hz', GPU:'NVIDIA RTX 4060', Weight:'1.5 kg' },
+    tags:['Windows 11','Gaming','OLED'], disc:false,
+    url:'https://rog.asus.com/laptops/rog-zephyrus/rog-zephyrus-g14-2024/spec/' },
+
+  /* ── PHONES ── */
+  { id:10, cat:'Phone', name:'iPhone 15 Pro Max', brand:'Apple', ico:'📱', price:1199,
+    specs:{ Chip:'A17 Pro', Display:'6.7" Super Retina XDR ProMotion', Camera:'48MP main + 12MP UW + 12MP 5× telephoto', Storage:'From 256GB (up to 1TB)', Build:'Titanium frame', Port:'USB-C' },
+    tags:['iOS','USB-C','Action Button','ProRes'], disc:false,
+    url:'https://www.apple.com/iphone-15-pro/specs/' },
+
+  { id:11, cat:'Phone', name:'Samsung Galaxy S24 Ultra', brand:'Samsung', ico:'📱', price:1299,
+    specs:{ Chip:'Snapdragon 8 Gen 3 for Galaxy', Display:'6.8" QHD+ Dynamic AMOLED 2X 120Hz', Camera:'200MP wide + 50MP 5× periscope', Storage:'From 256GB (up to 1TB)', Build:'Titanium frame', Extras:'Built-in S Pen' },
+    tags:['Android','S Pen','Galaxy AI','Enterprise'], disc:false,
+    url:'https://www.samsung.com/us/smartphones/galaxy-s24-ultra/buy/' },
+
+  { id:12, cat:'Phone', name:'Google Pixel 8 Pro', brand:'Google', ico:'📱', price:999,
+    specs:{ Chip:'Google Tensor G3', Display:'6.7" LTPO OLED 1–120Hz', Camera:'50MP main + 48MP UW + 48MP 5× telephoto', Storage:'From 128GB (up to 1TB)', Updates:'7 years OS + security', AI:'On-device Gemini Nano' },
+    tags:['Android','7yr support','Enterprise'], disc:false,
+    url:'https://store.google.com/product/pixel_8_pro_specs' },
+
+  { id:13, cat:'Phone', name:'iPhone 14 Pro Max', brand:'Apple', ico:'📱', price:849,
+    specs:{ Chip:'A16 Bionic', Display:'6.7" Super Retina XDR ProMotion', Camera:'48MP main + 12MP UW + 12MP 3× telephoto', Storage:'From 128GB (up to 1TB)', Build:'Stainless steel', Port:'Lightning' },
+    tags:['iOS','Discontinued by Apple'], disc:true, url:'' },
+
+  { id:14, cat:'Phone', name:'Samsung Galaxy S23 Ultra', brand:'Samsung', ico:'📱', price:749,
+    specs:{ Chip:'Snapdragon 8 Gen 2 for Galaxy', Display:'6.8" QHD+ Dynamic AMOLED 2X 120Hz', Camera:'200MP wide + 10× periscope', Storage:'From 256GB (up to 1TB)', Build:'Armor Aluminum', Extras:'Built-in S Pen' },
+    tags:['Android','Discontinued by Samsung'], disc:true, url:'' },
+
+  /* ── DESKTOPS ── */
+  { id:20, cat:'Desktop', name:'Mac Studio (M3 Max)', brand:'Apple', ico:'🖥️', price:1999,
+    specs:{ Chip:'Apple M3 Max (Ultra available)', RAM:'36GB unified (up to 128GB)', Storage:'1TB SSD (up to 8TB)', Ports:'Thunderbolt 4 ×4, USB-C ×2', Form:'Compact tower' },
+    tags:['macOS','Silent','Workstation'], disc:false,
+    url:'https://www.apple.com/mac-studio/specs/' },
+
+  { id:21, cat:'Desktop', name:'Dell OptiPlex 7010 SFF', brand:'Dell', ico:'🖥️', price:1099,
+    specs:{ CPU:'Intel Core i7-13700', RAM:'16GB DDR5 (up to 64GB)', Storage:'512GB NVMe', GPU:'Intel UHD 770', OS:'Windows 11 Pro', Form:'Small form factor' },
+    tags:['Enterprise','vPro option','Energy Star'], disc:false,
+    url:'https://www.dell.com/en-us/shop/desktops-all-in-one-pcs/optiplex-7010-small-form-factor/spd/optiplex-7010-desktop' },
+
+  { id:22, cat:'Desktop', name:'HP Z4 G5 Workstation', brand:'HP', ico:'🖥️', price:2799,
+    specs:{ CPU:'Intel Xeon W or Core i9 options', RAM:'Up to 256GB DDR5 ECC', Storage:'Multiple NVMe/SATA bays', GPU:'RTX A-series or AMD Pro options', OS:'Windows 11 Pro for WS', Form:'Tower' },
+    tags:['ISV Certified','ECC RAM','Workstation'], disc:false,
+    url:'https://www.hp.com/us-en/workstations/z4.html' },
+
+  /* ── TABLETS ── */
+  { id:30, cat:'Tablet', name:'iPad Pro 13" (M4)', brand:'Apple', ico:'📟', price:1299,
+    specs:{ Chip:'Apple M4', Display:'13" Ultra Retina XDR tandem OLED', Storage:'From 256GB (up to 2TB)', Connectivity:'Wi-Fi 6E + optional 5G', Pencil:'Apple Pencil Pro', Build:'Thinnest Apple product ever' },
+    tags:['iPadOS','Thunderbolt','MDM ready'], disc:false,
+    url:'https://www.apple.com/ipad-pro/specs/' },
+
+  { id:31, cat:'Tablet', name:'Samsung Galaxy Tab S9 Ultra', brand:'Samsung', ico:'📟', price:1199,
+    specs:{ Chip:'Snapdragon 8 Gen 2 for Galaxy', Display:'14.6" Dynamic AMOLED 2X 120Hz', Storage:'From 256GB (up to 1TB + microSD)', Battery:'11200 mAh', Stylus:'S Pen included', Rating:'IP68' },
+    tags:['Android','DeX mode','Knox'], disc:false,
+    url:'https://www.samsung.com/us/tablets/galaxy-tab-s9/buy/' },
+
+  { id:32, cat:'Tablet', name:'Microsoft Surface Pro 10', brand:'Microsoft', ico:'📟', price:1199,
+    specs:{ CPU:'Intel Core Ultra 5/7 Series 1', Display:'13" PixelSense Flow up to 120Hz', Storage:'From 256GB (up to 1TB)', RAM:'From 16GB (up to 64GB)', OS:'Windows 11 Pro', Keyboard:'Flex Keyboard (sold separately)' },
+    tags:['Windows 11','2-in-1','Business','AI-ready'], disc:false,
+    url:'https://www.microsoft.com/en-us/d/surface-pro-business/8z9s2n4f0nv9' },
+
+  /* ── NETWORKING ── */
+  { id:40, cat:'Hardware', name:'Cisco Catalyst 9300-48P', brand:'Cisco', ico:'⚙️', price:8499,
+    specs:{ Ports:'48× PoE+ Gigabit Ethernet', Uplinks:'Modular 10G/40G', PoE:'Up to 740W budget', Stacking:'StackWise-480/320', Management:'Cisco DNA Center compatible' },
+    tags:['Enterprise','PoE+','Stackable'], disc:false,
+    url:'https://www.cisco.com/c/en/us/products/switches/catalyst-9300-series-switches/index.html' },
+
+  { id:41, cat:'Hardware', name:'Ubiquiti UniFi Dream Machine Pro', brand:'Ubiquiti', ico:'⚙️', price:379,
+    specs:{ CPU:'Quad-core ARM Cortex-A57', Storage:'16GB eMMC + HDD bay', WAN:'1× 10G SFP+, 1× GbE RJ45', LAN:'8× GbE RJ45', Throughput:'Up to 3.5 Gbps IDS/IPS', Software:'UniFi OS Console' },
+    tags:['SMB','UniFi OS','IDS/IPS'], disc:false,
+    url:'https://store.ui.com/us/en/products/udm-pro' },
+
+  { id:42, cat:'Hardware', name:'Palo Alto PA-460', brand:'Palo Alto Networks', ico:'⚙️', price:0,
+    specs:{ Type:'Next-Gen Firewall (NGFW)', Throughput:'Multi-gigabit FW', Interfaces:'1G/10G ports', Security:'ML-Powered, Zero Trust', Pricing:'Via authorized reseller only' },
+    tags:['NGFW','Zero Trust','Enterprise'], disc:false,
+    url:'https://www.paloaltonetworks.com/network-security/pa-400-series', noPrice:true },
+
+  { id:43, cat:'Hardware', name:'Cisco RV345P Router', brand:'Cisco', ico:'⚙️', price:349,
+    specs:{ WAN:'Dual WAN', LAN:'16× GbE PoE', VPN:'IPSec + OpenVPN', Firewall:'SPI', Management:'Web UI' },
+    tags:['SMB','PoE','Discontinued by Cisco'], disc:true, url:'' },
+
+  /* ── DISPLAYS / TVs ── */
+  { id:50, cat:'TV', name:'LG C4 OLED 65"', brand:'LG', ico:'📺', price:1799,
+    specs:{ Panel:'OLED evo', Resolution:'4K, up to 144Hz (HDMI 2.1)', HDR:'Dolby Vision, HDR10, HLG', Processor:'α9 AI Gen7', Ports:'4× HDMI 2.1', Gaming:'G-SYNC + FreeSync Premium' },
+    tags:['OLED','4K','Gaming','Dolby Atmos'], disc:false,
+    url:'https://www.lg.com/us/tvs/lg-oled65c4pua' },
+
+  { id:51, cat:'TV', name:'Samsung QN90D Neo QLED 75"', brand:'Samsung', ico:'📺', price:2499,
+    specs:{ Panel:'Neo QLED Mini-LED', Resolution:'4K, 144Hz', HDR:'HDR10+', Processor:'NQ4 AI Gen2', Ports:'4× HDMI 2.1', Gaming:'FreeSync Premium Pro' },
+    tags:['Mini-LED','QLED','144Hz'], disc:false,
+    url:'https://www.samsung.com/us/televisions-home-theater/tvs/neo-qled-4k/75-class-qn90d/' },
+
+  { id:52, cat:'TV', name:'Sony BRAVIA 9 Mini LED 65"', brand:'Sony', ico:'📺', price:2999,
+    specs:{ Panel:'Mini LED w/ Backlight Master Drive', Resolution:'4K, up to 144Hz', HDR:'Dolby Vision, HDR10', Processor:'Cognitive Processor XR', Ports:'4× HDMI 2.1', Audio:'Frame Tweeter' },
+    tags:['Mini LED','4K','Premium'], disc:false,
+    url:'https://electronics.sony.com/tv-video/televisions/x-series/p/k65xr90' },
+
+  { id:53, cat:'TV', name:'Samsung Q80B QLED 55"', brand:'Samsung', ico:'📺', price:799,
+    specs:{ Panel:'QLED', Resolution:'4K, 120Hz', HDR:'HDR10+', Processor:'Quantum 4K Lite', Ports:'4× HDMI 2.1', Note:'Replaced by Q80D/QN80D' },
+    tags:['QLED','4K','Discontinued by Samsung'], disc:true, url:'' }
+];
+
+/* ── HARDWARE STATS ──────────────────────────────────────────────
+   Pascal: For i := 1 to 6 do  (6 categories)
+            count := count + 1
+            Writeln(category, count, minPrice)
+   ──────────────────────────────────────────────────────────────── */
+function renderStats() {
+  const cats   = ['Laptop','Phone','Desktop','Tablet','Hardware','TV'];
+  const icons  = ['💻','📱','🖥️','📟','⚙️','📺'];
+  const colors = [
+    ['#d9784a','#e3b54a'], ['#e3b54a','#d9584a'], ['#8aab6e','#d9784a'],
+    ['#d9584a','#8aab6e'], ['#d9784a','#8aab6e'], ['#8aab6e','#e3b54a']
+  ];
+  let html = '';
+  /* For i = 0 to cats.length-1 do */
+  for (let i = 0; i < cats.length; i++) {
+    const cat   = cats[i];
+    const items = HW.filter(h => h.cat === cat);
+    const priced = items.filter(h => !h.noPrice);
+    /* sum = 0; For each item: if price < min then min = price */
+    let minP = priced.length ? Math.min(...priced.map(h => h.price)) : null;
+    html += `<div class="stat-card" style="--sc1:${colors[i][0]};--sc2:${colors[i][1]};">
+      <div class="stat-lbl">${cat}s</div>
+      <div class="stat-val">${items.length}</div>
+      <div class="stat-sub">${minP !== null ? 'From $'+minP.toLocaleString() : 'Call for pricing'}</div>
+      <div class="stat-ico">${icons[i]}</div>
+    </div>`;
+  }
+  document.getElementById('hw-stats').innerHTML = html;
+}
+
+/* ── MARKETPLACE HTML BUILDER ───────────────────────────────────── */
+function mktHtml(name, officialUrl, disc) {
+  const L = mkt(name);
+  const off = (!disc && officialUrl) ?
+    `<a class="mlink official" href="${officialUrl}" target="_blank" rel="noopener">🏬 Official</a>` : '';
+  return `<div class="hw-links">
+    ${disc ? '<span class="tag disc">⚠ Discontinued</span>' : '<span class="tag curr">✓ Current</span>'}
+    ${off}
+    <a class="mlink amz"  href="${L.amz}"  target="_blank" rel="noopener">🛒 Amazon</a>
+    <a class="mlink ebay" href="${L.ebay}" target="_blank" rel="noopener">🛒 eBay</a>
+    <a class="mlink bb"   href="${L.bb}"   target="_blank" rel="noopener">🛒 Best Buy</a>
+  </div>`;
+}
+
+/* ── HARDWARE RENDER ─────────────────────────────────────────────
+   Pascal:
+     For i := 1 to deviceCount do
+       If category = filter then
+         If name contains searchQuery then
+           Writeln(device details)
+   ──────────────────────────────────────────────────────────────── */
+function renderHW() {
+  const q   = S.hwQ.toLowerCase();
+  const cat = S.hwCat;
+  const grid = document.getElementById('hw-grid');
+
+  /* Filter loop — mirrors your For i=1 to 20 + If pattern */
+  const filtered = HW.filter(h => {
+    const matchCat = (cat === 'All') || (h.cat === cat);
+    const matchQ   = !q || h.name.toLowerCase().includes(q)
+                       || h.brand.toLowerCase().includes(q)
+                       || h.tags.some(t => t.toLowerCase().includes(q));
+    return matchCat && matchQ;
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="ei">🔍</div><div class="et">No devices found</div><div>Try a different search or category</div></div>`;
+    return;
+  }
+
+  let html = '';
+  /* For each device: build card HTML — like your Writeln loop */
+  for (let i = 0; i < filtered.length; i++) {
+    const h = filtered[i];
+    let specRows = '';
+    const keys = Object.keys(h.specs);
+    for (let k = 0; k < keys.length; k++) {
+      specRows += `<div class="hw-spec"><span class="k">${keys[k]}</span><span class="v">${h.specs[keys[k]]}</span></div>`;
+    }
+    const tagsHtml = h.tags.map(t => `<span class="tag">${t}</span>`).join('');
+    const priceHtml = h.noPrice ? 'Call for pricing' : `<span class="fr">From </span>$${h.price.toLocaleString()}`;
+
+    html += `<div class="hw-card">
+      <div class="hw-head">
+        <div class="hw-ico">${h.ico}</div>
+        <div><div class="hw-name" title="${h.name}">${h.name}</div><div class="hw-brand">${h.brand}</div></div>
+      </div>
+      <div class="hw-price">${priceHtml}</div>
+      <div class="hw-specs">${specRows}</div>
+      <div class="hw-tags">${tagsHtml}</div>
+      ${mktHtml(h.name, h.url, h.disc)}
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function filterHW() {
+  S.hwQ = document.getElementById('hw-search').value;
+  renderHW();
+}
+function setCategory(el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  S.hwCat = el.dataset.cat;
+  renderHW();
+}
+
+/* ── VPN PROFILES ────────────────────────────────────────────────── */
+const PROFILES = [
+  { id:'remote',      ico:'👤', lbl:'Remote employee access' },
+  { id:'site2site',   ico:'🏢', lbl:'Site-to-site branch link' },
+  { id:'zerotrust',   ico:'🔒', lbl:'Zero Trust access' },
+  { id:'devstaging',  ico:'⚗️',  lbl:'Dev / staging isolation' },
+  { id:'iot',         ico:'📡', lbl:'IoT segmentation' },
+  { id:'contractor',  ico:'🤝', lbl:'Contractor temp access' }
+];
+
+function renderProfiles() {
+  /* For i := 1 to profileCount do Writeln(profile badge) */
+  document.getElementById('profile-grid').innerHTML = PROFILES.map(p =>
+    `<div class="pf-badge ${p.id===S.profile?'on':''}" data-pid="${p.id}" onclick="setProfile(this)">
+      <span class="pf-icon">${p.ico}</span>${p.lbl}
+    </div>`).join('');
+}
+function setProfile(el) {
+  document.querySelectorAll('.pf-badge').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  S.profile = el.dataset.pid;
+  saveAll();
+}
+function setProto(el) {
+  document.querySelectorAll('.proto-card').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  S.proto = el.dataset.p;
+  saveAll();
+}
+
+/* ── VPN CONFIG GENERATOR ────────────────────────────────────────
+   Pascal logic mapped:
+     Readln(host, port, org, dns, cipher)
+     If proto = 'wireguard' Then
+       config := buildWGConfig(...)
+     Else
+       config := buildOVPNConfig(...)
+     Writeln(config)
+   ──────────────────────────────────────────────────────────────── */
+function profileNotes(pid) {
+  /* If/Then/Else chain — same as your If price>500 Then … Else … */
+  if (pid === 'remote')     return `# • Full-tunnel: all traffic routes through VPN\n# • Good for staff on untrusted/public networks`;
+  if (pid === 'site2site')  return `# • Configure both ends as peers\n# • Use specific subnet AllowedIPs, not 0.0.0.0/0`;
+  if (pid === 'zerotrust')  return `# • Pair with IdP (Okta/Azure AD) + MFA\n# • Authenticate every session — trust nothing by default`;
+  if (pid === 'devstaging') return `# • Isolated tunnel on a dedicated subnet\n# • Split tunnel — route only dev/staging ranges`;
+  if (pid === 'iot')        return `# • Restrict IoT devices to only required hosts\n# • Block IoT peer-to-peer traffic via firewall rules`;
+  if (pid === 'contractor') return `# • Set hard expiry in VPN portal after project ends\n# • Limit AllowedIPs to only the specific hosts needed`;
+  return `# • Review and adjust for your environment`;
+}
+
+function genVPN() {
+  /* Readln inputs — like your Readln(price, discount) */
+  const host   = document.getElementById('v-host').value.trim()  || 'vpn.company.com';
+  const port   = document.getElementById('v-port').value.trim();
+  const org    = document.getElementById('v-org').value.trim()   || 'Enterprise Client';
+  const dns    = document.getElementById('v-dns').value.trim()   || '1.1.1.1, 1.0.0.1';
+  const cipher = document.getElementById('v-cipher').value;
+  const pf     = PROFILES.find(p => p.id === S.profile) || PROFILES[0];
+  const dnsArr = dns.split(',').map(d => d.trim());
+  const now    = new Date().toISOString().replace('T',' ').slice(0,19);
+
+  let cfg = '', fname = '';
+
+  /* If proto = 'wireguard' Then … Else … */
+  if (S.proto === 'wireguard') {
+    const wgPort = port || '51820';
+    fname = `wg-${S.profile}-client.conf`;
+    /* Build config string — like building your "total" output */
+    cfg =
+`# ══════════════════════════════════════════════
+# Tech Spec Scout Pro — WireGuard Config
+# Profile : ${pf.ico} ${pf.lbl}
+# Target  : ${host}:${wgPort}
+# Org     : ${org}
+# Created : ${now} UTC
+# ══════════════════════════════════════════════
+# ⚠ Replace all YOUR_*_KEY_HERE values before use
+#   wg genkey | tee private.key | wg pubkey > public.key
+# ══════════════════════════════════════════════
+
+[Interface]
+PrivateKey = YOUR_CLIENT_PRIVATE_KEY_HERE
+Address    = 10.8.0.2/24
+${dnsArr.map(d=>`DNS        = ${d}`).join('\n')}
+MTU        = 1420
+
+PostUp   = iptables -A FORWARD -i %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+[Peer]
+PublicKey    = YOUR_SERVER_PUBLIC_KEY_HERE
+PresharedKey = YOUR_PRESHARED_KEY_HERE_OR_REMOVE
+Endpoint     = ${host}:${wgPort}
+AllowedIPs   = 0.0.0.0/0, ::/0
+PersistentKeepalive = 25
+
+# ══════════════════════════════════════════════
+# Profile notes — ${pf.lbl}
+${profileNotes(S.profile)}
+# ══════════════════════════════════════════════`;
+  } else {
+    /* Else — OpenVPN */
+    const ovPort = port || '1194';
+    fname = `${S.profile}-client.ovpn`;
+    cfg =
+`# ══════════════════════════════════════════════
+# Tech Spec Scout Pro — OpenVPN Config
+# Profile : ${pf.ico} ${pf.lbl}
+# Target  : ${host}:${ovPort}
+# Org     : ${org}
+# Created : ${now} UTC
+# Cipher  : ${cipher}
+# ══════════════════════════════════════════════
+# ⚠ Replace certificate/key blocks with real
+#   EasyRSA / CA output before deploying.
+# ══════════════════════════════════════════════
+
+client
+dev tun
+proto udp
+remote ${host} ${ovPort}
+${dnsArr.map(d=>`dhcp-option DNS ${d}`).join('\n')}
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+
+tls-client
+tls-version-min 1.2
+remote-cert-tls server
+cipher ${cipher}
+auth SHA512
+verb 3
+comp-lzo no
+redirect-gateway def1 bypass-dhcp
+block-outside-dns
+keepalive 10 120
+
+<ca>
+-----BEGIN CERTIFICATE-----
+YOUR_CA_CERTIFICATE_HERE
+(./easyrsa build-ca)
+-----END CERTIFICATE-----
+</ca>
+
+<cert>
+-----BEGIN CERTIFICATE-----
+YOUR_CLIENT_CERTIFICATE_HERE
+(./easyrsa sign-req client client1)
+-----END CERTIFICATE-----
+</cert>
+
+<key>
+-----BEGIN PRIVATE KEY-----
+YOUR_CLIENT_PRIVATE_KEY_HERE
+(pki/private/client1.key)
+-----END PRIVATE KEY-----
+</key>
+
+<tls-auth>
+-----BEGIN OpenVPN Static key V1-----
+YOUR_TLS_AUTH_KEY_HERE
+(openvpn --genkey secret ta.key)
+-----END OpenVPN Static key V1-----
+</tls-auth>
+key-direction 1
+
+# ══════════════════════════════════════════════
+# Profile notes — ${pf.lbl}
+${profileNotes(S.profile)}
+# ══════════════════════════════════════════════`;
+  }
+
+  /* Writeln(config) — output to preview */
+  S.cfgText = cfg;
+  S.cfgFile = fname;
+  saveAll();
+
+  document.getElementById('cfg-pre').textContent = cfg;
+  document.getElementById('cfg-fname').textContent = fname;
+  document.getElementById('copy-btn').disabled = false;
+  document.getElementById('dl-btn').disabled   = false;
+  toast('Config generated: ' + fname, '⚡');
+}
+
+function copyCfg() {
+  if (!S.cfgText) return;
+  navigator.clipboard.writeText(S.cfgText)
+    .then(()  => toast('Copied to clipboard!','📋'))
+    .catch(()  => { const t=document.createElement('textarea'); t.value=S.cfgText; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); toast('Copied!','📋'); });
+}
+function dlCfg() {
+  if (!S.cfgText) return;
+  const b = new Blob([S.cfgText],{type:'text/plain'});
+  const u = URL.createObjectURL(b);
+  const a = document.createElement('a');
+  a.href=u; a.download=S.cfgFile||'vpn.conf'; a.click();
+  URL.revokeObjectURL(u);
+  toast('Downloaded: '+S.cfgFile,'⬇');
+}
+function clearCfg() {
+  S.cfgText=''; S.cfgFile='';
+  saveAll();
+  document.getElementById('cfg-pre').innerHTML = '<span class="dim"># Hit "Generate Production Config" whenever you\'re ready.</span>';
+  document.getElementById('cfg-fname').textContent='';
+  document.getElementById('copy-btn').disabled=true;
+  document.getElementById('dl-btn').disabled=true;
+  toast('Cleared','✕');
+}
+
+/* ── CHATBOT ─────────────────────────────────────────────────────
+   Sam's responses mirror your Pascal patterns:
+     Writeln("Enter the price") → Sam asks
+     Readln(price) → user types
+     If price > 500 then discount := price*0.05 — Sam calculates
+     Writeln("The total discount is", TD) — Sam responds
+   ──────────────────────────────────────────────────────────────── */
+const SAM_HELLO = `Hey! I'm **Sam** 👋 — think of me as that IT friend you can text any time you're staring at a product page, confused by networking acronyms, or just want a second opinion before spending real money on hardware.
+
+I'm great at:
+• 💻 **Hardware picks** — tell me a budget and I'll filter real options for you
+• 🔐 **VPN & networking** — WireGuard, OpenVPN, Zero Trust, firewalls
+• 📱 **Specific device specs** — just name it and I'll pull the details
+• 💰 **Budget advice** — like your discount calculator, but for gadgets
+
+What's on your mind? 😊`;
+
+/* DAILY MESSAGE COUNTER — like your sum=0 accumulator */
+function checkLimit() {
+  const today = new Date().toDateString();
+  /* While date changed do reset counter — like your While loop */
+  if (S.msgDate !== today) {
+    S.msgCount = 0;
+    S.msgDate  = today;
+  }
+  if (S.plan === 'chat' || S.plan === 'bundle') return true; /* unlimited */
+  /* If sum >= 5 Then exit (like your AtExit flag) */
+  if (S.msgCount >= 5) return false;
+  return true;
+}
+function countMsg() {
+  /* sum := sum + 1 (your accumulator pattern) */
+  S.msgCount = S.msgCount + 1;
+  saveAll();
+}
+
+function updateBadge() {
+  const b = document.getElementById('badge');
+  if (S.unread > 0 && S.view !== 'chat') { b.style.display=''; b.textContent=S.unread; }
+  else b.style.display='none';
+}
+function nowTime() { return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+
+function appendMsg(role, html, time) {
+  /* Writeln equivalent — outputs a message bubble */
+  const c   = document.getElementById('chat-msgs');
+  const isA = role==='ai';
+  const d   = document.createElement('div');
+  d.className = `cmsg ${isA?'ai':'user'}`;
+  d.innerHTML = `<div class="av ${isA?'ai':'user'}">${isA?'🧑‍💻':'🙂'}</div>
+    <div><div class="bubble">${html}</div><div class="msg-time">${time||nowTime()}</div></div>`;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+function showDots() {
+  const c=document.getElementById('chat-msgs');
+  const d=document.createElement('div');
+  d.className='cmsg ai'; d.id='dots';
+  d.innerHTML=`<div class="av ai">🧑‍💻</div><div><div class="bubble"><div class="tdots"><div class="td"></div><div class="td"></div><div class="td"></div></div></div></div>`;
+  c.appendChild(d); c.scrollTop=c.scrollHeight;
+}
+function hideDots() { const e=document.getElementById('dots'); if(e)e.remove(); }
+
+function md(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/`(.*?)`/g,'<code style="background:var(--bg3);padding:1px 5px;border-radius:5px;font-size:11.5px;font-family:var(--font-mono);">$1</code>')
+    .replace(/\n/g,'<br>');
+}
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function doSug(el) { document.getElementById('chat-inp').value=el.textContent.trim(); sendChat(); }
+
+function sendChat() {
+  const inp  = document.getElementById('chat-inp');
+  const text = inp.value.trim();
+  if (!text) return;
+
+  /* If sum >= limit Then Writeln(limit message) — like your If salary <= 5000 check */
+  if (!checkLimit()) {
+    appendMsg('ai', md(`You've hit today's free limit of 5 messages! 😅 Upgrade to **1-on-1 with Sam** ($9/mo) or the **Everything Bundle** ($18/mo) for unlimited chats. Want me to open the pricing page?`), nowTime());
+    return;
+  }
+
+  inp.value=''; inp.style.height='';
+  const t = nowTime();
+  appendMsg('user', esc(text), t);
+  S.msgs.push({ role:'user', text, time:t });
+  countMsg();
+  saveAll();
+
+  showDots();
+  /* While AtExit = False — waiting for response delay, like step counter */
+  const delay = 680 + Math.random() * 820;
+  setTimeout(()=>{
+    hideDots();
+    const r  = samReply(text);
+    const at = nowTime();
+    appendMsg('ai', r.html, at);
+    S.msgs.push({ role:'ai', html:r.html, time:at });
+    if (S.msgs.length > 200) S.msgs = S.msgs.slice(-200);
+    saveAll();
+    if (S.view !== 'chat') { S.unread++; updateBadge(); }
+  }, delay);
+}
+
+/* ── SAM'S REPLY ENGINE ──────────────────────────────────────────
+   Mirrors your If/Then/Else chains and loop accumulators.
+   Each condition block is like one of your If price>500 branches.
+   ──────────────────────────────────────────────────────────────── */
+function samReply(query) {
+  const q = query.toLowerCase();
+
+  /* ── VPN comparisons ── */
+  if ((q.includes('wireguard') && q.includes('openvpn')) || q.includes('compare vpn') || q.includes('which vpn')) {
+    return {html: md(`Great comparison question! 😊
+
+**⚡ WireGuard** — newer, leaner, genuinely fast. Tiny codebase (~4,000 lines — easy to audit), modern crypto, handles network switching beautifully. Perfect for remote workers and mobile devices.
+
+**🔒 OpenVPN** — the battle-hardened veteran since 2002. Incredibly flexible auth (LDAP, RADIUS, SSO), runs on TCP port 443 to bypass picky firewalls.
+
+**My take:** Speed + mobile roaming → WireGuard. Enterprise SSO + tricky firewalls → OpenVPN.
+
+Want me to generate a real config for either? Head to the **VPN Configurator** tab! 🔐`)};
+  }
+  if (q.includes('wireguard')) {
+    return {html: md(`WireGuard's genuinely one of my favorites! ⚡ Tiny codebase, modern cryptography (ChaCha20/Poly1305), and noticeably faster than older protocols. It reconnects seamlessly when you switch networks — great for mobile workers.
+
+One heads-up: no built-in username/password auth, so enterprise deployments usually pair it with an identity portal for SSO/MFA.
+
+Want a real WireGuard config? Swing by the **VPN Configurator** tab! 🙂`)};
+  }
+  if (q.includes('openvpn')) {
+    return {html: md(`OpenVPN — the reliable workhorse! 🔒 Enterprises have trusted it since 2002 for good reason. Works with certificates, LDAP, RADIUS, SSO — very flexible auth.
+
+It can run over TCP 443 which makes it great at getting through restrictive corporate or hotel Wi-Fi. Slightly slower than WireGuard but way more auth options.
+
+Want an OpenVPN config? **VPN Configurator** tab is ready for you! 🚀`)};
+  }
+
+  /* ── Budget filter — Pascal: If price <= budget then include ── */
+  const bmatch = q.match(/\$?\s?(\d[\d,]*)\s*(k\b)?/);
+  let budget = null;
+  if (bmatch && (q.includes('under')||q.includes('budget')||q.includes('around')||q.includes('$')||q.includes('spend'))) {
+    budget = parseInt(bmatch[1].replace(/,/g,''));
+    if (bmatch[2]==='k') budget *= 1000;
+  }
+
+  /* For each category check — like your If/Then/Else chain */
+  if (budget && (q.includes('laptop')||q.includes('macbook')||q.includes('notebook'))) {
+    /* sum=0; For i=1 to N: if price<=budget then add to results */
+    const r = HW.filter(h=>h.cat==='Laptop' && !h.noPrice && h.price<=budget)
+               .sort((a,b)=>b.price-a.price).slice(0,3);
+    return buildRec(r,'laptop',budget);
+  }
+  if (budget && (q.includes('phone')||q.includes('iphone')||q.includes('samsung')||q.includes('pixel')||q.includes('smartphone'))) {
+    const r = HW.filter(h=>h.cat==='Phone' && !h.noPrice && h.price<=budget)
+               .sort((a,b)=>b.price-a.price).slice(0,3);
+    return buildRec(r,'phone',budget);
+  }
+  if (budget) {
+    const r = HW.filter(h=>!h.noPrice && h.price<=budget)
+               .sort((a,b)=>b.price-a.price).slice(0,3);
+    return buildRec(r,'device',budget);
+  }
+
+  /* ── Specific products ── */
+  if (q.includes('iphone 15 pro max')) {
+    const item = HW.find(h=>h.name==='iPhone 15 Pro Max');
+    return buildOne(item, `The iPhone 15 Pro Max is Apple's most capable iPhone — happy to walk you through it! 📱`);
+  }
+  if (q.includes('s24 ultra')||q.includes('galaxy s24 ultra')) {
+    const item = HW.find(h=>h.name.includes('S24 Ultra'));
+    return item ? buildOne(item,`Galaxy S24 Ultra is seriously impressive hardware! 📱`) : fallback();
+  }
+  if (q.includes('macbook pro')||q.includes('mac studio')||q.includes('m3 max')) {
+    return buildMany(HW.filter(h=>h.brand==='Apple'&&(h.cat==='Laptop'||h.cat==='Desktop')), `Apple's current Mac lineup is really strong right now — here's what stands out: 🍎`);
+  }
+  if (q.includes('thinkpad')||q.includes('lenovo')) {
+    return buildMany(HW.filter(h=>h.brand==='Lenovo'), `If you want a laptop that'll take a beating for years, ThinkPads are the go-to. 💼`);
+  }
+  if (q.includes('dell')) {
+    return buildMany(HW.filter(h=>h.brand==='Dell'), `Dell covers a lot of ground — here's their range in my catalog: 🖥️`);
+  }
+
+  /* ── Category browsing ── */
+  if (q.includes('laptop')||q.includes('notebook')) return buildMany(HW.filter(h=>h.cat==='Laptop').slice(0,4),`Here's a solid spread of laptops across budgets: 💻`);
+  if (q.includes('phone')||q.includes('smartphone')||q.includes('iphone')||q.includes('android')) return buildMany(HW.filter(h=>h.cat==='Phone').slice(0,4),`Let's talk phones! Here's what I'd pick from right now: 📱`);
+  if (q.includes('desktop')||q.includes('workstation')) return buildMany(HW.filter(h=>h.cat==='Desktop'),`Desktops and workstations — here's the current lineup: 🖥️`);
+  if (q.includes('tablet')||q.includes('ipad')||q.includes('surface')) return buildMany(HW.filter(h=>h.cat==='Tablet'),`Tablets have become real productivity powerhouses — here's what stands out: 📟`);
+  if (q.includes('tv')||q.includes('oled')||q.includes('qled')||q.includes('display')) return buildMany(HW.filter(h=>h.cat==='TV'),`For premium displays and TVs, here's what I'm excited about: 📺`);
+  if (q.includes('switch')||q.includes('router')||q.includes('firewall')||q.includes('network')) return buildMany(HW.filter(h=>h.cat==='Hardware'),`Networking gear — here's the range from SMB to enterprise: ⚙️`);
+
+  /* ── Small talk ── */
+  if (q.includes('zero trust')) {
+    return {html: md(`Zero Trust is one of those things that sounds buzzwordy but is genuinely the right way to think about security now. 🔒
+
+Core idea: **never trust by default**, even devices already inside your network. Every request gets verified based on identity and device state.
+
+Starting points that make the biggest difference:
+• **MFA everywhere** — the single highest-ROI security move
+• **Conditional access** — only let compliant devices in
+• **Micro-segmentation** — limit how far a breach can spread
+• **Continuous monitoring** — assume breach, watch for anomalies
+
+Want help building a Zero Trust roadmap for your setup? Happy to dig in. 😊`)};
+  }
+  if (q.includes('video call')||q.includes('zoom')||q.includes('meetings all day')||q.includes('webcam')) {
+    return {html: md(`Oh, bad video call setups are so avoidable — let's fix that! 😄
+
+For all-day calls, I'd prioritize **mic quality** and **battery life** over raw processing power (you're mostly running a browser tab, not a render farm).
+
+Top picks:
+• **MacBook Air 15" M3** — fanless (no fan noise on calls!), excellent mics, 18hr battery
+• **HP Elite Dragonfly G4** — outstanding mic array, HP's privacy shutter built in
+
+Want full specs on either? Just ask! 🙂`)};
+  }
+  if (q.includes('backup')||q.includes('disaster recovery')) {
+    return {html: md(`Backup planning — love this question! 💾
+
+My go-to framework: **3-2-1-1-0**
+• **3** copies of data
+• **2** different media types
+• **1** offsite copy
+• **1** immutable (ransomware-proof) copy
+• **0** restore errors — you actually test it!
+
+And tier your systems by recovery time: mission-critical needs < 1hr recovery, less critical can wait 24–72hrs. That distinction alone saves a lot of budget.
+
+Want to map your systems to tiers? Happy to help. 🙂`)};
+  }
+  if (q.includes('pricing')||q.includes('subscri')||q.includes('plan')||q.includes('upgrade')) {
+    return {html: md(`Sure! Here's the quick rundown: 💳
+
+• **Free** — full hardware catalog + 5 chats/day
+• **1-on-1 with Sam** ($9/mo) — unlimited chatting + saved history
+• **Networking Pro** ($12/mo) — unlimited VPN config generation
+• **Everything Bundle** ($18/mo) — all of the above
+
+All simulated in demo mode — head to **Plans & Pricing** in the sidebar to switch. 😊`)};
+  }
+  if (q.includes('thank')) return {html: md(`You're so welcome! 😊 That's genuinely what I'm here for. Come back any time something tech-y is on your mind.`)};
+  if (q.match(/^(hi|hey|hello|good morning|good afternoon|good evening)/)) {
+    return {html: md(`Hey! 👋 Great to hear from you. I'm Sam — your IT sidekick for hardware picks, networking, VPN configs, all of it.
+
+What are you working on today? Or just browsing — either way, I'm here! 😊`)};
+  }
+  if (q.includes('help')||q.includes('what can you do')) {
+    return {html: md(`Happy to give you the rundown! 🗺️
+
+**Hardware** — tell me a budget + category ("laptop under $1500") and I'll filter real options with specs and marketplace links
+
+**VPN & Networking** — WireGuard, OpenVPN, Zero Trust, firewall picks, or generate a real config file in the VPN Configurator
+
+**IT Strategy** — backup planning, DR, security frameworks
+
+**Specific products** — just name a device and I'll pull the verified specs
+
+What would be most useful right now? 😊`)};
+  }
+
+  return fallback();
+}
+
+function fallback() {
+  return {html: md(`Hmm, let me make sure I point you the right direction! 🤔
+
+• **Hardware recs** → tell me a budget + what you need it for
+• **VPN question** → ask about WireGuard, OpenVPN, or jump to the VPN Configurator
+• **Specific product** → name any device and I'll pull the specs
+• **Budget filter** → "phones under $1000" or "laptops around $1500"
+
+What direction feels right? 😊`)};
+}
+
+/* ── PRODUCT CARD BUILDERS ───────────────────────────────────────
+   Like your Writeln(name, price, discount) but for device cards
+   ──────────────────────────────────────────────────────────────── */
+function pcLinks(item) {
+  const L = mkt(item.name);
+  const off = (!item.disc && item.url) ? `<a class="mlink official" href="${item.url}" target="_blank">🏬 Official</a>` : '';
+  return `<div class="pcrd-links">
+    ${item.disc ? '<span class="tag disc" style="font-size:11px;">⚠ Discontinued</span>' : '<span class="tag curr" style="font-size:11px;">✓ Current</span>'}
+    ${off}
+    <a class="mlink amz"  href="${L.amz}"  target="_blank">🛒 Amazon</a>
+    <a class="mlink ebay" href="${L.ebay}" target="_blank">🛒 eBay</a>
+    <a class="mlink bb"   href="${L.bb}"   target="_blank">🛒 Best Buy</a>
+  </div>`;
+}
+
+function buildOne(item, intro) {
+  if (!item) return fallback();
+  const specs = Object.entries(item.specs).map(([k,v])=>`<div style="margin:3px 0"><span style="color:var(--t3)">${k}:</span> <strong>${v}</strong></div>`).join('');
+  return { html:`<div>${md(intro)}</div>
+    <div class="pcrd">
+      <div class="pcrd-name">${item.ico} ${item.name}</div>
+      <div class="pcrd-price">${item.noPrice ? 'Call for pricing' : 'From $'+item.price.toLocaleString()}</div>
+      <div class="pcrd-spec" style="margin-top:7px;">${specs}</div>
+      ${pcLinks(item)}
+    </div>` };
+}
+
+function buildMany(items, intro) {
+  if (!items.length) return fallback();
+  /* For i := 1 to items.length do Writeln(card) */
+  const cards = items.map(item => {
+    const top = Object.entries(item.specs).slice(0,3);
+    return `<div class="pcrd">
+      <div class="pcrd-name">${item.ico} ${item.name} <span style="font-size:11px;font-weight:400;color:var(--t3)">${item.brand}</span></div>
+      <div class="pcrd-price">${item.noPrice ? 'Call for pricing' : 'From $'+item.price.toLocaleString()}</div>
+      <div class="pcrd-spec">${top.map(([k,v])=>`${k}: ${v}`).join(' · ')}</div>
+      ${pcLinks(item)}
+    </div>`;
+  }).join('');
+  return { html:`<div>${md(intro)}</div>${cards}<div style="margin-top:9px;font-size:12.5px;color:var(--t2);">Want full specs on any of these, or should I dig up more options? 😊</div>` };
+}
+
+function buildRec(items, type, budget) {
+  if (!items.length) {
+    return { html: md(`Hmm, I couldn't find a ${type} at or under $${budget.toLocaleString()} in my catalog. Want me to check slightly above budget, or look at some discontinued models at resale prices? 🤔`) };
+  }
+  return buildMany(items, `Nice — let's find you something great at or under **$${budget.toLocaleString()}**: 🎯`);
+}
+
+/* ── MICROPHONE (Web Speech API) ────────────────────────────────
+   Pascal: Readln via voice instead of keyboard
+   ──────────────────────────────────────────────────────────────── */
+let recog = null, isRec = false;
+function toggleMic() {
+  const btn = document.getElementById('mic-btn');
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    toast('Voice input needs Chrome or a Chromium browser','⚠️'); return;
+  }
+  if (isRec) { if(recog)recog.stop(); return; }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recog = new SR();
+  recog.lang='en-US'; recog.continuous=false; recog.interimResults=true;
+
+  recog.onstart = ()=>{ isRec=true; btn.classList.add('rec'); toast('Listening — speak now!','🎙️'); };
+  recog.onresult = e=>{
+    const inp = document.getElementById('chat-inp');
+    inp.value = Array.from(e.results).map(r=>r[0].transcript).join('');
+    autoH(inp);
+  };
+  recog.onerror = e=>{ toast('Mic error: '+e.error,'⚠️'); stopRec(); };
+  recog.onend   = stopRec;
+  recog.start();
+}
+function stopRec(){ isRec=false; document.getElementById('mic-btn').classList.remove('rec'); }
+function autoH(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,118)+'px'; }
+
+/* ── SIGN-IN (simulated) ─────────────────────────────────────────
+   Simulates your Readln(name) → validate → Writeln(welcome)
+   ──────────────────────────────────────────────────────────────── */
+function openSignIn()  { document.getElementById('signin-ov').classList.add('show'); }
+function skipSignIn()  { LS.save('tssp4_si_skip',true); document.getElementById('signin-ov').classList.remove('show'); }
+function doSignIn(provider) {
+  const labels = { Google:'Alex (Google)', Apple:'Alex (Apple)', Yahoo:'Alex (Yahoo)' };
+  S.user = { provider, name: labels[provider] };
+  saveAll();
+  renderUserChip();
+  document.getElementById('signin-ov').classList.remove('show');
+  document.getElementById('lock-bar').style.display='none';
+  toast(`Signed in with ${provider} (demo)`, '✅');
+}
+function signOut() {
+  S.user = null; saveAll();
+  renderUserChip();
+  document.getElementById('lock-bar').style.display = S.user ? 'none' : 'flex';
+  toast('Signed out','👋');
+}
+function userChipClick() {
+  if (S.user) { if (confirm('Sign out of demo account?')) signOut(); }
+  else openSignIn();
+}
+function renderUserChip() {
+  const av = document.getElementById('uav');
+  const lbl = document.getElementById('ulabel');
+  if (S.user) { av.textContent='👤'; lbl.textContent=S.user.name; }
+  else        { av.textContent='🙂'; lbl.textContent='Guest — sign in'; }
+}
+
+/* ── PRICING ─────────────────────────────────────────────────────
+   If plan = selected Then show current else show subscribe
+   ──────────────────────────────────────────────────────────────── */
+function setPlan(plan) {
+  if (plan===S.plan) { toast("You're already on this plan",'ℹ️'); return; }
+  S.plan = plan;
+  saveAll();
+  refreshPlanBtns();
+  const names={free:'Free',networking:'Networking Pro',chat:'1-on-1 with Sam',bundle:'Everything Bundle'};
+  toast(`Switched to ${names[plan]} (demo — no charge)`,'🎉');
+}
+function refreshPlanBtns() {
+  /* For each plan: If current Then show "Current plan" Else show "Subscribe" */
+  const plans = ['free','networking','chat','bundle'];
+  for (let i=0; i<plans.length; i++) {
+    const p   = plans[i];
+    const btn = document.getElementById('pb-'+p);
+    if (!btn) continue;
+    if (p===S.plan) {
+      btn.textContent='✓ Current plan';
+      btn.className='btn btn-G btn-full';
+    } else if (p==='free') {
+      btn.textContent='Switch to Free';
+      btn.className='btn btn-S btn-full';
+    } else {
+      btn.textContent='Subscribe';
+      btn.className=(p==='networking') ? 'btn btn-P btn-full' : 'btn btn-S btn-full';
+    }
+  }
+}
+
+/* ── THEME ───────────────────────────────────────────────────────── */
+const THEMES = ['ember','ocean','forest','berry','sunrise','slate'];
+function setTheme(t) {
+  S.theme = t;
+  document.body.setAttribute('data-theme', t);
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('on', s.dataset.t===t));
+  saveAll();
+}
+function buildSwatches() {
+  const row = document.getElementById('swatches');
+  row.innerHTML = THEMES.map(t=>
+    `<div class="swatch ${t===S.theme?'on':''}" data-t="${t}" title="${t}" onclick="setTheme('${t}')"></div>`
+  ).join('');
+}
+
+/* ── NAV ─────────────────────────────────────────────────────────── */
+const VIEWS = {
+  chat:     { title:'Chat with Sam',           sub:'Your enterprise IT buddy — ask me anything' },
+  hardware: { title:'Hardware Spec Scout',     sub:'Specs + Amazon · eBay · Best Buy links on every device' },
+  vpn:      { title:'Instant VPN Configurator',sub:'Production-ready configs in seconds' },
+  pricing:  { title:'Plans & Pricing',         sub:'Unlock VPN tools and unlimited chat' }
+};
+function gotoView(v) {
+  S.view=v; saveAll();
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.dataset.view===v));
+  document.getElementById('tb-title').textContent = VIEWS[v].title;
+  document.getElementById('tb-sub').textContent   = VIEWS[v].sub;
+  if (v==='chat') { S.unread=0; updateBadge(); }
+  closeSidebar();
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+/* ── TOAST ───────────────────────────────────────────────────────── */
+let tTimer;
+function toast(msg, ico='✅') {
+  const el=document.getElementById('toast');
+  document.getElementById('t-ico').textContent=ico;
+  document.getElementById('t-msg').textContent=msg;
+  el.classList.add('show');
+  clearTimeout(tTimer);
+  tTimer=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function confirmClear() {
+  if (confirm("Clear all saved chats, configs, and preferences? This can't be undone.")) {
+    localStorage.removeItem('tssp4');
+    localStorage.removeItem('tssp4_si_skip');
+    location.reload();
+  }
+}
+
+/* ── RESTORE CHAT ────────────────────────────────────────────────── */
+function restoreChat() {
+  /* Readln(savedMessages) — like re-reading stored data */
+  const c = document.getElementById('chat-msgs');
+  c.innerHTML='';
+  if (!S.msgs.length) {
+    appendMsg('ai', md(SAM_HELLO), nowTime());
+    return;
+  }
+  /* For i := 1 to msgs.length do Writeln(bubble) */
+  for (let i=0; i<S.msgs.length; i++) {
+    const m = S.msgs[i];
+    if (m.role==='user') appendMsg('user', esc(m.text), m.time);
+    else appendMsg('ai', m.html, m.time);
+  }
+}
+
+function restoreVPN() {
+  if (S.proto==='openvpn') {
+    document.querySelectorAll('.proto-card').forEach(c=>c.classList.toggle('on',c.dataset.p==='openvpn'));
+  }
+  if (S.cfgText) {
+    document.getElementById('cfg-pre').textContent  = S.cfgText;
+    document.getElementById('cfg-fname').textContent = S.cfgFile;
+    document.getElementById('copy-btn').disabled    = false;
+    document.getElementById('dl-btn').disabled      = false;
+  }
+}
+
+/* ── KEYBOARD ────────────────────────────────────────────────────── */
+document.addEventListener('keydown', e=>{
+  if (e.key==='Enter' && !e.shiftKey && document.activeElement===document.getElementById('chat-inp')) {
+    e.preventDefault(); sendChat();
+  }
+});
+document.getElementById('chat-inp').addEventListener('input',function(){ autoH(this); });
+
+/* ══════════════════════════════════════════════════════════════════
+   MAIN PROGRAM — like Pascal's main Begin...End block
+   Declares, then runs each setup step in sequence.
+   ══════════════════════════════════════════════════════════════════ */
+function main() {
+  /* Step 1: Readln all saved state */
+  loadAll();
+
+  /* Step 2: Apply theme (like setting initial variable values) */
+  document.body.setAttribute('data-theme', S.theme || 'ember');
+  buildSwatches();
+
+  /* Step 3: Writeln hardware stats and grid */
+  renderStats();
+  renderHW();
+
+  /* Step 4: Writeln VPN profiles */
+  renderProfiles();
+  restoreVPN();
+
+  /* Step 5: Writeln saved chat messages */
+  restoreChat();
+
+  /* Step 6: Restore user session */
+  renderUserChip();
+  document.getElementById('lock-bar').style.display = S.user ? 'none' : 'flex';
+
+  /* Step 7: Restore plan buttons */
+  refreshPlanBtns();
+
+  /* Step 8: Restore active view */
+  if (S.view && S.view !== 'chat') gotoView(S.view);
+
+  /* Step 9: Update notification badge */
+  updateBadge();
+
+  /* Step 10: Show sign-in once if never dismissed */
+  if (!S.user && !LS.load('tssp4_si_skip', false)) {
+    setTimeout(()=>openSignIn(), 700);
+  }
+
+  /* Writeln("Program loaded successfully") */
+  console.log('%c🧭 Tech Spec Scout Pro — main() complete. Sam is ready!','color:#d9784a;font-size:14px;font-weight:bold;');
+  console.log('%c  Logic style: Pascal sequential blocks → JS functions','color:#8aab6e;');
+  console.log('%c  For/While/If patterns preserved from user samples','color:#8aab6e;');
+}
+
+/* Run main — like Pascal program entry point */
+main();
+</script>
+</body>
+</html>
